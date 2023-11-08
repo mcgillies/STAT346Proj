@@ -11,7 +11,7 @@ population_size <- 200
 # SRS for Regular season
 srs_sample_reg <- reg_data[common_sample_indices, ]
 srs_est_reg <- mean(srs_sample_reg$PTS)
-fpc <- sqrt(1 - sample_size / population_size)
+fpc <- 1 - sample_size / population_size
 se_reg <- sqrt(var(srs_sample_reg$PTS)/sample_size * fpc)
 quantile <- qnorm(0.95)
 CI_reg <- c(srs_est_reg - quantile*se_reg, srs_est_reg + quantile*se_reg)
@@ -34,17 +34,16 @@ within_strata_vars <- reg_data %>%
   summarize(SD = sd(PTS))
 
 ## We see that Within-Strata Variance are varying so we use optimal allocation
+## Here we assume the cost of sampling from each strata is the same
 
-sum_sd <- sum(within_strata_vars$SD)
-within_strata_vars$strat_sample_sizes <- round(within_strata_vars$SD/sum_sd * sample_size)
-sum(strat_sample_sizes)
+se_strata <- stratum_sizes$StratumSize * within_strata_vars$SD
+samp_sizes_strat <- round(se_strata/sum(se_strata) * sample_size)
 
-## Number have been rounded, SF sample size was rounded incorrectly to maintain
-## sample size of 50. 
-within_strata_vars$strat_sample_sizes[4] = 10
+samp_sizes_strat[3] = 9
 
-## Performing stratified sampling:
-samp_sizes_strat <- within_strata_vars$strat_sample_sizes
+## We round the point guard strata size down to ensure the total sample size 
+## is 50, although it should technically round up. 
+
 
 final_samples <- data.frame()  # Initialize an empty dataframe to store the final samples
 
