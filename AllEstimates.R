@@ -3,6 +3,7 @@ set.seed(123)
 playoff_data <- read.csv("202223nbaplayoffs.csv", header = T)
 reg_data <- read.csv("202223regseasonnodupes.csv", header = T)
 
+## SRS sampling
 common_sample_indices <- sample(1:nrow(reg_data), 50)
 
 sample_size <- 50
